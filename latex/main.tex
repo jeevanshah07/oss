@@ -1,0 +1,170 @@
+\documentclass{beamer}
+\usepackage{verbatim}
+\usetheme{Boadilla}
+
+\title{Documentation Project}
+\author{Jeevan Shah}
+\institute{Rutgers}
+\date{\today}
+
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{Changing the Default Shell (on MacOS)}
+    Lets say you just started working on a new machine and you want to ensure that the current shell is bash. We can check the current shell and switch it if it isn't our preferred shell in a few simple steps: 
+    \begin{enumerate}
+        \item Run \texttt{ps -p \$\$} to check the current shell - \texttt{ps} stands for `process supply' and is a command we can use to check which processes are running in our terminal. The \texttt{-p} flag allows us to specify a specific process, so we pass the argument \texttt{\$\$} which is a variable that holds the process id (PID) of the current shell.
+        \item If the current shell is our desired shell then we are done! If it isn't we can change the shell using the \texttt{chsh} command. 
+        \begin{enumerate}
+            \item Start by running \texttt{cat /etc/shells} to view the available shells on the machine.
+            \item Next run \texttt{chsh -s \$1} where \texttt{\$1} is the file path of your choosen shell from the previous command (the \texttt{-s} flag simply allows us to change the shell as the \texttt{chsh} command can update a variety of information about our user).
+        \end{enumerate}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Changing the Default Shell (Example)}
+    \includegraphics[scale=0.5]{images/bash-example.png}
+    \begin{alertblock}{}
+        As you can see this process may need administrator abilites!
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{An Overview of \texttt{.bashrc} and \texttt{.bash\_profile}}
+    \begin{block}{What are they?}
+        \texttt{.bashrc} and \texttt{.bash\_profile} are files found in the home directory which allow you to control the behavior of your shell. 
+    \end{block} 
+    \begin{block}{Whats the difference?}
+        \begin{itemize}
+            \item \texttt{.bashrc} is called every time the shell is \textit{initalized} (for example, each time you open up a new terminal window). This is the best place to put things like aliases and functions to guarentee that they are loaded each time you launch a new shell.
+            \item \texttt{.bash\_profile} is called every time you \textit{login} to the shell (for example, using SSH to remotely access the shell). This is the best place to store environment variables to ensure they are available to all programs, not just the interactive shell.
+       \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Editing \texttt{.bashrc} and \texttt{.bash\_profile}}
+    These days, almost all systems come installed with \texttt{vi} which is a text editor that works soley in the terminal, so we can use it to edit our files.
+    \begin{exampleblock}{Using \texttt{vi}}
+        Vi is intended to be completely accessable from the keyboard. The default state of vi is \textbf{normal mode} which allows us to move with h (left), j (up), k (down), and l (right). When you want to start editing, hit `i' to enter \textbf{insert mode}. You can exit insert mode and return to normal mode with the escape key.
+    \end{exampleblock}
+    In order to edit \texttt{.bashrc}, enter `\texttt{vi \~{}/.bashrc}'. We can then enter insert mode with `i' and add the line `\texttt{alias ll = ls -la}', hit escape to return to normal mode, and save and quit from vi with `\texttt{:wqa}'. Now, we can reload our shell (either by opening a new terminal or running `\texttt{source \~{}/.bashrc}') and check that everything is working correctly by running `\texttt{which ll}'. If you did everything right you should see `\texttt{ll: aliased to ls -la}'
+\end{frame}
+
+\begin{frame}
+    \frametitle{The PATH variable}
+    When working in a shell environment certain pieces of information are stored in environment variables which hold information pertaining to the current environment, and if you store them in \texttt{.bash\_profile} (or \texttt{.bashrc}) then they will persist from session to session. When working in the shell you can access your environment variables using a dollar sign followed by the name of your variable. One of, if not the, most important enviornment variables is the \texttt{PATH} variable which contains a set of directories that tells your shell where to look for executables. To view your \texttt{PATH}, run `\texttt{echo \$PATH}'.
+    \begin{exampleblock}{How to Edit the \texttt{PATH} variable}
+        There often come times in which you need to edit your \texttt{PATH} variable, usually to add an additional directory to it. Say you want to add the directory `\texttt{\~{}/.program/bin}' to your path. We can easily do this by opening up our \texttt{.bash\_profile} or \texttt{.bashrc} and adding the following line to the bottom: `\texttt{export PATH = "\$HOME/.program/bin:\$PATH"}'.
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The \texttt{tar} Command}
+    The \texttt{tar} command is used to manipulate (compressed) archive files. You can use \texttt{tar} to both extract and archive/compress files. 
+    
+    Lets say you have some files in the form `\texttt{files.tar.gz}` and you want to use the \texttt{tar} command to analyze/unpack them. 
+    \begin{itemize}
+        \item \texttt{tar -tvf files.tar.gz}: prints file names, permissions, owners etc of the contents of the archive.
+        \item \texttt{tar -xzvf files.tar.gz}: unpacks the \textbf{entire} archive into the \textit{current directory} (add the `\texttt{-p}' flag to ensure permissions and preserved)
+        \item \texttt{tar -xzvf files.tar.gz folder1/file1}: unpacks \textbf{only} \texttt{folder1/file1} from \texttt{files.zip} into the \textit{current directory}
+        \item \texttt{tar -xzvf files.tar.gz -C /myFiles/extracted}: unpacks the \textbf{entire} archive into the folder \texttt{/myFiles/extracted} (the provided directory must exist beforehand)
+        \item \texttt{tar --exclude='folder1/file1.txt' -czvf files.tar.gz -C /tmp .}: Recreates \texttt{files.tar.gz} \textbf{without} \texttt{folder1/file1.txt}
+    \end{itemize} 
+\end{frame}
+
+\begin{frame}
+    \frametitle{The \texttt{tar} Command (cont.)}
+    Now, lets say you have the following files: \texttt{file1.txt}, \texttt{file2.txt}, and \texttt{folder1/file3.txt}. If you want to archive and/or compress them here are some important commands you might use:
+    \begin{itemize}
+        \item \texttt{tar -czvf files.tar.gz file1.txt file2.txt folder1/file3.txt}: Creates a \textbf{compressed} archive (`\texttt{-z}' indicated gzip compression) with the provided files.
+        \item \texttt{tar -czvf files.tar.gz file1.txt file2.txt folder1/file3.txt file4.txt}: Adds \texttt{file4.txt} to \texttt{files.tar.gz} (by uncompressing and then recompressing - which is why you must specify the files already in \texttt{files.tar.gz})
+    \end{itemize}
+    \begin{alertblock}{\texttt{.tar} vs \texttt{.tar.gz}}
+        You may see that some files end in `\texttt{.tar}' rather than `\texttt{.tar.gz}'. All this mean is that the `\texttt{.tar}' file is \textbf{uncompressed} and rather just an archive of files. If you're working with files that end in `\texttt{.tar}' simply just omit the `\texttt{-z}' flag from your \texttt{tar} commands (and use `\texttt{files.tar}' instead). 
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{File Permissions}
+    Earlier I mentioned that using the `\texttt{-p}' flag with \texttt{tar} would preserve permissions. This is important because every file/directory has read (r), write (w), and execute (x) permissions specified for the user, the group, and the system (sometimes referred to as `other'). Using a command like `\texttt{ls -la}' will show the contents of the current directory along with the permissions of each file. When looking at this you can see a string that looks like `\texttt{rwxrw-r--}'.
+    \begin{exampleblock}{Understanding Permissions}
+        \begin{itemize}
+            \item The next three characters indicate the permissions for the \textbf{user} (who owns the file)
+            \item The following three characters indicate the permissions for the \textbf{group} (that the owner belongs too)
+            \item The final three characters indicate the permissions for any user \textbf{not} apart of the group.
+        \end{itemize}
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{File Permissions (cont.)}
+    Sometimes you need to change the permissions of a file or directory. We do this using the `\texttt{chmod}' command. The \texttt{chmod} command works in the following way: `\texttt{chmod} [0-7][0-7][0-7] file'. There are three numbers passed for each set of permissions.
+    \begin{exampleblock}{Numerical Permissions}
+        When changing permissions it's important to understand that \underline{r}ead=$4$, \underline{w}rite=$2$, and e\underline{x}ecute=$1$. Every combination of adding these three numbers corresponds to a different permissions. 
+        \begin{itemize}
+            \begin{minipage}{0.45\linewidth}
+                \item $0$ would be `\texttt{---}'
+                \item $1$ would be `\texttt{--x}'
+                \item $2$ would be `\texttt{-w-}'
+                \item $3 = 1+2$ would be `\texttt{-wx}'
+            \end{minipage}
+            \hfill
+            \begin{minipage}{0.45\linewidth}
+                \item $4$ would be `\texttt{r--}'
+                \item $5=4+1$ would be `\texttt{r-x}'
+                \item $6 = 4 + 2$ would be `\texttt{rw-}'
+                \item $7 = 4 + 2 + 1$ would be `\texttt{rwx}'
+            \end{minipage}
+        \end{itemize}
+    \end{exampleblock}
+    Thus, \texttt{chmod 764 file} would result in \texttt{file} having the following permissions: `\texttt{rwxrw-r--}' 
+\end{frame}
+
+\begin{frame}
+    \frametitle{File Permissions (cont.)}
+    Theres also another way to use the \texttt{chmod} command. Rather than dealing with numbers we can also change the permissions using letters. In this case the syntax is: \texttt{chmod (u,g,o)$\pm$(r,w,x)}. 
+    \begin{enumerate}
+        \item First, we choose either `\texttt{u}', `\texttt{g}', or `\texttt{o}' to change the permissions for the \underline{u}ser, \underline{g}roup, or \underline{o}ther.
+        \item Then we use either `\texttt{+}' or `\texttt{-}' to add or remove permissions.
+        \item Finally, we determine which permissions to change by selecting from `\texttt{r}', `\texttt{w}', or `\texttt{x}'.
+    \end{enumerate} 
+       For example `\texttt{chmod u+x file}' would add execute permissions to our user for \texttt{file}. We can also adjust multiple permissions as the same time: `\texttt{chmod o+r-wx,u+rwx}' would add read permissions and remove write and execute permissions from other while adding read, write, and execute permissions to the user.
+\end{frame}
+
+\begin{frame}
+    \frametitle{File Permissions (cont.)}
+    There is one final thing to discuss, the \textbf{sticky bit}. The sticky bit a permission that \textit{only directories have} and it tells us who is allowed to rename and delete files in a certain folder. The sticky bit is mainly used in folders that are accessable to all users on the system, such as \texttt{/tmp}. We can set the sticky bit using a similar \texttt{chmod} syntax: 
+    \begin{itemize}
+        \item \texttt{chmod +t /var/share} (or \texttt{chmod 1764 /var/share} if the previous permissions were `rwxrw-r--'): turns on the sticky bit in \texttt{/var/share} meaning that only a file's owner (or administrator) can delete or rename it.
+        \item \texttt{chmod -t /var/share} (or \texttt{chmod 0764} if the previous permissions were `\texttt{rwxrw-r--}'): turns off the sticky bit
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Hard vs Soft Links}
+    \begin{block}{Hard Links}
+        Hard links are links that point directly to memory on the hard drive. This means that if \texttt{file1} is hard linked to \texttt{file2} and \texttt{file2} is deleted, \texttt{file1} will survive because they both point to the same memory on the hardd rive. Thus, editing \texttt{file1} will change \texttt{file2} and vice versa. Hard links are best used when you need multiple references to the same file such as system config files. Hard links \textbf{cannot} point to directories. You can create a hard link using the command `\texttt{ln file1.txt file2.txt}'.
+    \end{block}
+    \begin{block}{Soft Links}
+        Soft links, or symbolic links, are links that point to a different pathname, \textbf{including directories}. If \texttt{file1} is soft linked to \texttt{file2} and \texttt{file2} is deleted, the soft link becomes `broken' and doesn't function anymore. Soft links are best used to point to directories or across file systems. You can create a soft link using the command `\texttt{ln -s file1.txt file2.txt}'.
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{UNIX File Structure}
+    The UNIX file strcuture is a (mostly) standarized structure found across all types of UNIX machines. It organizes all data into \textit{files} and all files into \textit{directories}. All data lives in the \underline{root directory} called \texttt{/}. In the root directory there are many important folders such as 
+    \begin{itemize}
+        \item \texttt{/usr} - stores executables, libraries, and other shared resources deemed to be not critical to the system (such as your window manager/desktop environment)
+        \item \texttt{/etc} - holds all system wide config files and databases (recall that the list of available shells was stored in \texttt{/etc/shells})
+        \item \texttt{/home} - holds all the home directories for each user
+        \item \texttt{/tmp} - a location to store all temporary files as \texttt{/tmp} is usually cleared upon each shutdown
+        \item \texttt{/var} - home to files that often change, usually in size (things like logs or caches)
+        \item \texttt{/bin} - contains built-in binaries accessable to all users (things like \texttt{ls} or \texttt{mv})
+    \end{itemize}
+\end{frame}
+\end{document}
