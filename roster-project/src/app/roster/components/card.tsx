@@ -9,7 +9,7 @@ import {
   Spinner,
   Button,
 } from "@heroui/react";
-import { classGet } from "@/api/types";
+import type { classGet } from "@/api/types";
 import Link from "next/link";
 
 interface cardProps {
@@ -37,7 +37,9 @@ export default function ClassCard({ name }: cardProps) {
             <CardBody className="py-2">
               <p className="text-xl">Professor: {info["professor"]}</p>
               <p className="text-md">Credits: {info["credits"]}</p>
-              <p className="text-md">Class Size: {info["students"].length}</p>
+              <p className="text-md">
+                Class Size: {info["students"] ? info["students"].length : 0}
+              </p>
             </CardBody>
             <Divider />
             <CardFooter>

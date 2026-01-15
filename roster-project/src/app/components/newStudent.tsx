@@ -23,7 +23,6 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
   const [studentLastName, setStudentLastName] = useState<string>("");
   const [studentGradYear, setStudentGradYear] = useState<string>("");
   const [studentMajor, setStudentMajor] = useState<string>("");
-  const [studentGPA, setStudentGPA] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +40,6 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
           last: studentLastName,
           grad: studentGradYear,
           major: studentMajor,
-          gpa: studentGPA,
         }),
       });
 
@@ -50,6 +48,10 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
       }
 
       if (res.ok) {
+        setStudentFirstName("");
+        setStudentLastName("");
+        setStudentGradYear("");
+        setStudentMajor("");
         addToast({
           title: "Student Created!",
           color: "success",
@@ -117,17 +119,6 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
                       type="text"
                       value={studentMajor}
                       onValueChange={setStudentMajor}
-                    />
-                    <Input
-                      isRequired
-                      className="w-[400px]"
-                      label="GPA"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="4.0"
-                      value={studentGPA}
-                      onValueChange={setStudentGPA}
                     />
                   </ModalBody>
                   <ModalFooter>

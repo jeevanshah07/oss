@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, Key } from "react";
 import {
   addToast,
-  Chip,
   Table,
   TableColumn,
   TableBody,
@@ -15,10 +14,12 @@ import {
   Spacer,
 } from "@heroui/react";
 import { columns } from "./lib/data";
-import { student } from "@/api/types";
+import { calculateGPA } from "./lib/helpers";
+import type { student } from "@/api/types";
 import { MdDelete } from "react-icons/md";
 import NewStudent from "../components/newStudent";
 import EditStudent from "./components/editStudent";
+import CourseChip from "./components/courseChip";
 
 export default function Page() {
   const [students, setStudents] = useState<student[]>([]);
@@ -30,8 +31,6 @@ export default function Page() {
   };
 
   const handleDelete = async (_id: String) => {
-    refreshTable();
-
     const res = await fetch("/api/students", {
       method: "DELETE",
       headers: {
@@ -42,6 +41,7 @@ export default function Page() {
       }),
     });
     if (res.ok) {
+      refreshTable();
       addToast({
         title: "Student Deleted",
         color: "success",
@@ -72,14 +72,17 @@ export default function Page() {
         case "major":
           return rowValue.major;
         case "gpa":
-          return rowValue.gpa;
+          return String(calculateGPA(rowValue.classes));
         case "classes":
           return (
             <div>
-              {rowValue.classes.map((course) => (
-                <Chip key={course} className="p-1 m-1 text-md">
-                  {course}
-                </Chip>
+              {rowValue.classes.map((course, idx) => (
+                <CourseChip
+                  key={idx}
+                  onUpdate={refreshTable}
+                  courseName={course.name}
+                  _id={rowValue._id}
+                />
               ))}
             </div>
           );

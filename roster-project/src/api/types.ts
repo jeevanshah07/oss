@@ -12,6 +12,18 @@ export type student = {
   lastName: string;
   graduatingYear: number;
   major: string;
-  classes: string[];
+  classes: Course[];
   gpa: number;
 }
+
+export type Course = {
+  name: string;
+  credits: string;
+  grade: string;
+}
+
+export type Grade = "A" | "B+" | "B" | "C+" | "C" | "D" | "F"
+
+export type GradesByID = Record<string, Grade>
+
+export const GRADES = ["A", "B+", "B", "C+", "C", "D", "F"]

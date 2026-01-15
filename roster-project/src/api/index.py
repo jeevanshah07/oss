@@ -53,9 +53,7 @@ def get_class(class_name: str):
         if len(res["students"]) > 0:
             for i in range(len(res["students"])):
                 res["students"][i] = str(res["students"][i])
-            return jsonify(res)
-        else:
-            return jsonify({"error": "error finding class"}), 500
+        return jsonify(res)
     else:
         return jsonify({"error": "class not found"}), 404
 
@@ -92,7 +90,9 @@ def delete_class(class_name: str):
     res = collection.delete_one({"name": class_name})
 
     collection = db["students"]
-    collection.update_many({"classes": class_name}, {"$pull": {"classes": class_name}})
+    collection.update_many(
+        {"classes": {"name": class_name}}, {"$pull": {"classes": {"name": class_name}}}
+    )
 
     if res.deleted_count > 0:
         return jsonify({"success": "class deleted successfully"})
@@ -106,7 +106,7 @@ def remove_student_from_class(class_name: str):
 
     collection = db["students"]
     res = collection.update_one(
-        {"_id": ObjectId(data["_id"])}, {"$pull": {"classes": class_name}}
+        {"_id": ObjectId(data["_id"])}, {"$pull": {"classes": {"name": class_name}}}
     )
 
     collection = db["classes"]
@@ -114,9 +114,7 @@ def remove_student_from_class(class_name: str):
         {"name": class_name}, {"$pull": {"students": ObjectId(data["_id"])}}
     )
 
-    if (res.matched_count > 0 and res.modified_count > 0) and (
-        res1.matched_count > 0 and res1.modified_count > 0
-    ):
+    if res.acknowledged and res1.acknowledged:
         return jsonify({"success": "student removed from class"})
     else:
         return jsonify({"error": "error updating document"}), 404
@@ -126,13 +124,29 @@ def remove_student_from_class(class_name: str):
 def get_students(class_name: str):
     collection = db["students"]
 
-    res = list(collection.find({"classes": class_name}))
+    res = list(collection.find({"classes.name": class_name}))
     if res:
         for doc in res:
             doc["_id"] = str(doc["_id"])
         return jsonify(res)
     else:
         return jsonify([{}])
+
+
+@app.route("/api/classes/<class_name>/students", methods=["PATCH"])
+def update_grade(class_name: str):
+    collection = db["students"]
+    data = request.get_json()
+
+    res = collection.update_one(
+        {"_id": ObjectId(data["_id"]), "classes.name": class_name},
+        {"$set": {"classes.$.grade": data["grade"]}},
+    )
+
+    if res.acknowledged:
+        return jsonify({"succes": "grade updated"})
+    else:
+        return jsonify({"error": "error updating grade"}), 500
 
 
 @app.route("/api/classes/<class_name>/students", methods=["PUT"])
@@ -146,7 +160,16 @@ def add_student_to_class(class_name: str):
         return jsonify({"error": "Student already in class!"}), 400
 
     res = collection.update_one(
-        {"_id": ObjectId(data["_id"])}, {"$push": {"classes": class_name}}
+        {"_id": ObjectId(data["_id"])},
+        {
+            "$push": {
+                "classes": {
+                    "name": class_name,
+                    "credits": str(data["credits"]),
+                    "grade": "A",
+                }
+            }
+        },
     )
 
     collection = db["classes"]
@@ -174,7 +197,7 @@ def create_students():
             "lastName": data["last"],
             "graduatingYear": data["grad"],
             "major": data["major"],
-            "gpa": data["gpa"],
+            "gpa": 0,
         }
     )
 
@@ -241,7 +264,7 @@ def update_student(_id: str):
             "$set": {
                 "firstName": data["first"],
                 "lastName": data["last"],
-                "gpa": data["gpa"],
+                "gpa": 0,
                 "major": data["major"],
                 "graduatingYear": data["grad"],
             }

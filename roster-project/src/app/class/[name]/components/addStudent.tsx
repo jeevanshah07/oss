@@ -21,16 +21,17 @@ import {
   Divider,
 } from "@heroui/react";
 import { allColumns } from "../lib/data";
-import { student } from "@/api/types";
+import type { student } from "@/api/types";
 import { FaPlus } from "react-icons/fa";
 import NewStudent from "@/app/components/newStudent";
 
 interface addStudentProps {
   course: string;
+  credits: number;
   onUpdate?: () => void;
 }
 
-export default function AddStudent({ course, onUpdate }: addStudentProps) {
+export default function AddStudent({ course, credits, onUpdate }: addStudentProps) {
   const [students, setStudents] = useState<student[]>([]);
   const [updated, setUpdated] = useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -48,6 +49,7 @@ export default function AddStudent({ course, onUpdate }: addStudentProps) {
         },
         body: JSON.stringify({
           _id: _id,
+          credits: credits,
         }),
       });
 
@@ -92,8 +94,8 @@ export default function AddStudent({ course, onUpdate }: addStudentProps) {
           return (
             <div>
               {rowValue.classes.map((course) => (
-                <Chip key={course} className="p-1 m-1 text-md">
-                  {course}
+                <Chip key={course.name} className="p-1 m-1 text-md">
+                  {course.name}
                 </Chip>
               ))}
             </div>

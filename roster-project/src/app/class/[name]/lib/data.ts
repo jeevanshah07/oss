@@ -43,7 +43,12 @@ export const columns = [
     label: "MAJOR",
   },
   {
+    key: "grade",
+    label: "GRADE"
+  },
+  {
     key: "actions",
     label: "ACTIONS"
   }
 ];
+

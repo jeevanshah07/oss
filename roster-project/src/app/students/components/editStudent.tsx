@@ -44,7 +44,6 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
           last: studentLastName,
           grad: studentGradYear,
           major: studentMajor,
-          gpa: studentGPA,
         }),
       });
 
@@ -138,15 +137,11 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
                       onValueChange={setStudentMajor}
                     />
                     <Input
-                      isRequired
+                      isReadOnly
                       className="w-[400px]"
                       label="GPA"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="4.0"
+                      variant="bordered"
                       value={studentGPA}
-                      onValueChange={setStudentGPA}
                     />
                   </ModalBody>
                   <ModalFooter>
