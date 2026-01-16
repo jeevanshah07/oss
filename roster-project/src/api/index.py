@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, json, request, jsonify
 from bson import ObjectId
 from pymongo import MongoClient
 
@@ -209,10 +209,43 @@ def create_students():
         return jsonify({"error": "error creating student"}), 400
 
 
-@app.route("/api/students", methods=["DELETE"])
-def delete_student():
+@app.route("/api/students/many", methods=["DELETE"])
+def delete_many_students():
     data = request.get_json()
     collection = db["students"]
+
+    errors = []
+
+    if data["_ids"] == "all":
+        res = collection.delete_many({})
+        if res.acknowledged:
+            return jsonify({"error": f"error deleting student(s) with id: {errors}"})
+        else:
+            return jsonify({"success": "all students deleted"}), 200
+
+    ids_to_delete = [ObjectId(_id) for _id in data["_ids"]]
+    res = collection.delete_many({"_id": {"$in": ids_to_delete}})
+
+    if res.acknowledged:
+        print("ack")
+
+    collection = db["classes"]
+    collection.update_many(
+        {"students": {"$in": ids_to_delete}},
+        {"$pull": {"students": {"$in": ids_to_delete}}},
+    )
+
+    if len(errors) > 0:
+        return jsonify({"error": f"error deleting student(s) with id: {errors}"})
+
+    return jsonify({"success": "all students deleted"}), 200
+
+
+@app.route("/api/students", methods=["DELETE"])
+def delete_student():
+    data: dict = request.get_json()
+    collection = db["students"]
+
     res = collection.delete_one({"_id": ObjectId(data["_id"])})
 
     collection = db["classes"]
@@ -224,7 +257,7 @@ def delete_student():
     if res.deleted_count > 0:
         return jsonify({"success": "student deleted correctly"})
     else:
-        return jsonify({"error": "error deleting student"}), 400
+        return jsonify({"error": "error deleting student"}), 500
 
 
 @app.route("/api/students", methods=["GET"])

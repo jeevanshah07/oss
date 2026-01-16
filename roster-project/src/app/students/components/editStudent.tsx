@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import {
   Button,
@@ -13,6 +14,7 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { MdModeEditOutline } from "react-icons/md";
+import MajorSelect from "@/app/components/majorSelect";
 
 interface newStudentProps {
   _id: string;
@@ -27,6 +29,10 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
   const [studentGradYear, setStudentGradYear] = useState<string>("");
   const [studentMajor, setStudentMajor] = useState<string>("");
   const [studentGPA, setStudentGPA] = useState<string>("");
+
+  const handleMajorChange = (value: string) => {
+    setStudentMajor(value);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,14 +134,7 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
                       value={studentGradYear}
                       onValueChange={setStudentGradYear}
                     />
-                    <Input
-                      isRequired
-                      className="w-[400px]"
-                      label="Major"
-                      type="text"
-                      value={studentMajor}
-                      onValueChange={setStudentMajor}
-                    />
+                    <MajorSelect onUpdate={handleMajorChange} />
                     <Input
                       isReadOnly
                       className="w-[400px]"

@@ -11,6 +11,7 @@ import {
   Form,
   useDisclosure,
 } from "@heroui/react";
+import MajorSelect from "./majorSelect";
 
 interface newStudentProps {
   onUpdate?: () => void;
@@ -23,6 +24,10 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
   const [studentLastName, setStudentLastName] = useState<string>("");
   const [studentGradYear, setStudentGradYear] = useState<string>("");
   const [studentMajor, setStudentMajor] = useState<string>("");
+
+  const handleMajorChange = (value: string) => {
+    setStudentMajor(value);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,14 +117,7 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
                       value={studentGradYear}
                       onValueChange={setStudentGradYear}
                     />
-                    <Input
-                      isRequired
-                      className="w-[400px]"
-                      label="Major"
-                      type="text"
-                      value={studentMajor}
-                      onValueChange={setStudentMajor}
-                    />
+                    <MajorSelect onUpdate={handleMajorChange}/>
                   </ModalBody>
                   <ModalFooter>
                     <Button color="danger" onPress={onClose}>
