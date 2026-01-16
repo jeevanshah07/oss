@@ -24,6 +24,11 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
   const [studentLastName, setStudentLastName] = useState<string>("");
   const [studentGradYear, setStudentGradYear] = useState<string>("");
   const [studentMajor, setStudentMajor] = useState<string>("");
+  const [studentMinor, setStudentMinor] = useState<string>("");
+
+  const handleMinorChange = (value: string) => {
+    setStudentMinor(value);
+  }
 
   const handleMajorChange = (value: string) => {
     setStudentMajor(value);
@@ -45,6 +50,7 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
           last: studentLastName,
           grad: studentGradYear,
           major: studentMajor,
+          minor: studentMinor,
         }),
       });
 
@@ -117,7 +123,8 @@ export default function NewStudent({ onUpdate }: newStudentProps) {
                       value={studentGradYear}
                       onValueChange={setStudentGradYear}
                     />
-                    <MajorSelect onUpdate={handleMajorChange}/>
+                    <MajorSelect value="" type='major' onUpdate={handleMajorChange}/>
+                    <MajorSelect value="" type='minor' onUpdate={handleMinorChange}/>
                   </ModalBody>
                   <ModalFooter>
                     <Button color="danger" onPress={onClose}>

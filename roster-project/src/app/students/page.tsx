@@ -69,7 +69,6 @@ export default function Page() {
   }, [visibleColumns]);
 
   const handleDelete = () => {
-    console.log("skeys", selectedKeys);
     fetch("/api/students/many", {
       method: "DELETE",
       headers: {
@@ -148,6 +147,8 @@ export default function Page() {
           return rowValue.graduatingYear;
         case "major":
           return rowValue.major;
+        case "minor":
+          return rowValue.minor;
         case "gpa":
           return String(calculateGPA(rowValue.classes));
         case "classes":

@@ -12,6 +12,7 @@ export type student = {
   lastName: string;
   graduatingYear: number;
   major: string;
+  minor: string;
   classes: Course[];
   gpa: number;
 }

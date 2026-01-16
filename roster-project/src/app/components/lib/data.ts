@@ -1,4 +1,9 @@
-export const majors = [
+export type major = {
+  label: string;
+  key: string;
+}
+
+export const majors: major[] = [
   { label: "Psychology", key: "psych" },
   { label: "Statistics", key: "stats" },
   { label: "Computer Science", key: "cs" },
@@ -62,4 +67,5 @@ export const majors = [
   { label: "Cybersecurity", key: "cyber" },
   { label: "Computer and Information Systems", key: "it" },
   { label: "English", key: "eng" },
+  { label: "Other", key: "other" },
 ];

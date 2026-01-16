@@ -1,4 +1,4 @@
-from flask import Flask, json, request, jsonify
+from flask import Flask, request, jsonify
 from bson import ObjectId
 from pymongo import MongoClient
 
@@ -197,6 +197,7 @@ def create_students():
             "lastName": data["last"],
             "graduatingYear": data["grad"],
             "major": data["major"],
+            "minor": data['minor'],
             "gpa": 0,
         }
     )

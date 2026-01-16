@@ -16,6 +16,10 @@ export const columns = [
     label: "MAJOR",
   },
   {
+    key: "minor",
+    label: "MINOR",
+  },
+  {
     key: "classes",
     label: "CLASSES"
   },

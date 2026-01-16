@@ -28,7 +28,12 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
   const [studentLastName, setStudentLastName] = useState<string>("");
   const [studentGradYear, setStudentGradYear] = useState<string>("");
   const [studentMajor, setStudentMajor] = useState<string>("");
+  const [studentMinor, setStudentMinor] = useState<string>("");
   const [studentGPA, setStudentGPA] = useState<string>("");
+
+  const handleMinorChange = (value: string) => {
+    setStudentMajor(value);
+  };
 
   const handleMajorChange = (value: string) => {
     setStudentMajor(value);
@@ -87,6 +92,7 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
         setStudentGPA(data["gpa"]);
         setStudentGradYear(data["graduatingYear"]);
         setStudentMajor(data["major"]);
+        setStudentMinor(data["minor"]);
       });
   }, [_id]);
 
@@ -134,7 +140,16 @@ export default function EditStudent({ _id, onUpdate }: newStudentProps) {
                       value={studentGradYear}
                       onValueChange={setStudentGradYear}
                     />
-                    <MajorSelect onUpdate={handleMajorChange} />
+                    <MajorSelect
+                      value={studentMajor}
+                      type="major"
+                      onUpdate={handleMajorChange}
+                    />
+                    <MajorSelect
+                      value={studentMinor}
+                      type="minor"
+                      onUpdate={handleMinorChange}
+                    />
                     <Input
                       isReadOnly
                       className="w-[400px]"

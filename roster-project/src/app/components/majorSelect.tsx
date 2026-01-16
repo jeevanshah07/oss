@@ -7,8 +7,12 @@ import {
 import { useFilter } from "@react-aria/i18n";
 import { majors } from "./lib/data";
 
+import type { major } from "./lib/data";
+
 interface majorSelectProps {
   onUpdate?: (item: string) => void;
+  type: "major" | "minor";
+  value: string;
 }
 
 type FieldState = {
@@ -17,10 +21,18 @@ type FieldState = {
   items: typeof majors;
 };
 
-export default function MajorSelect({ onUpdate }: majorSelectProps) {
+export default function MajorSelect({
+  value,
+  type,
+  onUpdate,
+}: majorSelectProps) {
+  const defaultValue: major | undefined = majors.find(
+    (option) => option.label === value,
+  );
+
   const [fieldState, setFieldState] = useState<FieldState>({
-    selectedKey: "",
-    inputValue: "",
+    selectedKey: defaultValue ? defaultValue.key : "",
+    inputValue: defaultValue ? defaultValue.label : "",
     items: majors,
   });
 
@@ -69,13 +81,14 @@ export default function MajorSelect({ onUpdate }: majorSelectProps) {
       className="max-w-md"
       inputValue={fieldState.inputValue}
       items={fieldState.items}
-      label="Major"
-      placeholder="Search for a major"
+      label={type === "major" ? "Major" : "Minor"}
+      placeholder={`Search for a ${type === "major" ? "major" : "minor"}`}
       selectedKey={fieldState.selectedKey}
       variant="bordered"
       onInputChange={onInputChange}
       onOpenChange={onOpenChange}
       onSelectionChange={onSelectionChange}
+      isRequired={type === "major"}
     >
       {(item) => (
         <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>
