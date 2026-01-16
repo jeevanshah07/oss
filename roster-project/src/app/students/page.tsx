@@ -18,7 +18,6 @@ import {
   Spinner,
 } from "@heroui/react";
 import { columns } from "./lib/data";
-import { calculateGPA } from "./lib/helpers";
 import { Search } from "lucide-react";
 import NewStudent from "../components/newStudent";
 import EditStudent from "./components/editStudent";
@@ -150,7 +149,7 @@ export default function Page() {
         case "minor":
           return rowValue.minor;
         case "gpa":
-          return String(calculateGPA(rowValue.classes));
+          return rowValue.gpa.toPrecision(3);
         case "classes":
           return (
             <div>

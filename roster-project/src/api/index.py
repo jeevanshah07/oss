@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 from bson import ObjectId
 from pymongo import MongoClient
 
+from api.helpers import updateGPA
+
+
 app = Flask(__name__)
 client = MongoClient()
 db = client["rosterProject"]
@@ -100,6 +103,47 @@ def delete_class(class_name: str):
         return jsonify({"error": "error deleting class!"}), 404
 
 
+@app.route("/api/classes/<class_name>/majors", methods=["GET"])
+def get_class_majors(class_name: str):
+    collection = db["students"]
+    pipeline = [
+        {"$match": {"classes.name": class_name}},
+        {
+            "$group": {
+                "_id": "$major",
+                "count": {"$sum": 1}
+            }
+        },
+        {"$project": {"_id": 0, "major": "$_id", "count": 1}}
+    ]
+
+    results = list(collection.aggregate(pipeline))
+
+    print(results)
+
+
+    return jsonify(results)
+
+
+@app.route("/api/classes/<class_name>/grades", methods=["GET"])
+def get_class_grades(class_name: str):
+    collection = db["students"]
+    pipeline = [
+        {"$unwind": "$classes"},
+        {"$match": {"classes.name": class_name}},
+        {"$project": {"_id": 0, "grade": "$classes.grade"}},
+    ]
+
+    grades = [doc["grade"] for doc in collection.aggregate(pipeline)]
+
+    count = []
+
+    for grade in ["A", "B+", "B", "C+", "C", "D", "F"]:
+        count.append(grades.count(grade))
+
+    return jsonify(count)
+
+
 @app.route("/api/classes/<class_name>/students", methods=["DELETE"])
 def remove_student_from_class(class_name: str):
     data = request.get_json()
@@ -138,12 +182,14 @@ def update_grade(class_name: str):
     collection = db["students"]
     data = request.get_json()
 
-    res = collection.update_one(
+    collection.update_one(
         {"_id": ObjectId(data["_id"]), "classes.name": class_name},
         {"$set": {"classes.$.grade": data["grade"]}},
     )
 
-    if res.acknowledged:
+    res = updateGPA(collection, ObjectId(data["_id"]))
+
+    if res:
         return jsonify({"succes": "grade updated"})
     else:
         return jsonify({"error": "error updating grade"}), 500
@@ -172,6 +218,8 @@ def add_student_to_class(class_name: str):
         },
     )
 
+    updateGPA(collection, ObjectId(data["_id"]))
+
     collection = db["classes"]
     res1 = collection.update_one(
         {"name": class_name}, {"$push": {"students": ObjectId(data["_id"])}}
@@ -197,16 +245,14 @@ def create_students():
             "lastName": data["last"],
             "graduatingYear": data["grad"],
             "major": data["major"],
-            "minor": data['minor'],
+            "minor": data["minor"],
             "gpa": 0,
         }
     )
 
     if res.acknowledged:
-        print(res.inserted_id)
         return jsonify({"success": "student created correctly"})
     else:
-        print("error")
         return jsonify({"error": "error creating student"}), 400
 
 
@@ -226,9 +272,6 @@ def delete_many_students():
 
     ids_to_delete = [ObjectId(_id) for _id in data["_ids"]]
     res = collection.delete_many({"_id": {"$in": ids_to_delete}})
-
-    if res.acknowledged:
-        print("ack")
 
     collection = db["classes"]
     collection.update_many(
@@ -309,6 +352,44 @@ def update_student(_id: str):
         return jsonify({"success": "student updated"})
     else:
         return jsonify({"error": "error updating student"}), 500
+
+
+@app.route("/api/stats/years", methods=["GET"])
+def year_stats():
+    collection = db["students"]
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$graduatingYear",
+                "averageGPA": {"$avg": "$gpa"},
+                "studentCount": {"$sum": 1},
+            }
+        },
+        {"$sort": {"averageGPA": -1}},
+    ]
+
+    res = collection.aggregate(pipeline)
+
+    return jsonify(list(res))
+
+
+@app.route("/api/stats/majors", methods=["GET"])
+def major_stats():
+    collection = db["students"]
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$major",
+                "averageGPA": {"$avg": "$gpa"},
+                "studentCount": {"$sum": 1},
+            }
+        },
+        {"$sort": {"averageGPA": -1}},
+    ]
+
+    res = collection.aggregate(pipeline)
+
+    return jsonify(list(res))
 
 
 if __name__ == "__main__":
